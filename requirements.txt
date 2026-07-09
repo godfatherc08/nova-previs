@@ -3,3 +3,4 @@ b2sdk
 pytest
 truststore
 ruff
+pydantic

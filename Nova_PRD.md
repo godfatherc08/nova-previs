@@ -87,6 +87,8 @@ The Shot Spec is Nova's core intellectual property and the thing that makes it "
 
 Because control lives in this IR (not in a single model's parameter schema), Nova is not hostage to any one model's lifespan. When a better image or video model ships, Nova points the compiler at it — no rewrite. This is the reason V2.0 removes the previous hard dependency on one image model.
 
+**Locked schema (backlog 1.1):** `nova/models/shot_spec.py` is the canonical implementation — a Pydantic model with `extra="forbid"` and closed enums on `camera.angle`, `framing.shot_size`, `lighting.key`, and `grade.contrast` (the compiler needs a closed vocabulary here to map deterministically to provider prompts; compositional fields like `camera.movement` stay free text since they're inherently combinatorial). `version` (shown here omitted for readability, present in the CLAUDE.md example) defaults to 1. A generated standalone JSON Schema lives at `schema/shot_spec.schema.json`, regenerated via `scripts/export_shot_spec_schema.py`.
+
 ---
 
 ## 7. System architecture

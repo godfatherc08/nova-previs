@@ -1,0 +1,260 @@
+{
+  "$defs": {
+    "Camera": {
+      "additionalProperties": false,
+      "properties": {
+        "angle": {
+          "enum": [
+            "eye-level",
+            "low",
+            "high",
+            "overhead",
+            "dutch",
+            "worms-eye",
+            "over-the-shoulder"
+          ],
+          "title": "Angle",
+          "type": "string"
+        },
+        "height_m": {
+          "description": "Camera height above ground in meters. Human eye-level ~1.5; allows up to 50 for drone/aerial shots.",
+          "exclusiveMinimum": 0,
+          "maximum": 50,
+          "title": "Height M",
+          "type": "number"
+        },
+        "movement": {
+          "description": "Free text, e.g. 'slow push-in', 'static', 'fast whip-pan left', 'handheld tracking'. Compositional (speed + direction + type), not a closed set.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Movement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "angle",
+        "height_m",
+        "movement"
+      ],
+      "title": "Camera",
+      "type": "object"
+    },
+    "Framing": {
+      "additionalProperties": false,
+      "properties": {
+        "shot_size": {
+          "enum": [
+            "extreme wide",
+            "wide",
+            "full",
+            "medium wide",
+            "medium",
+            "medium close-up",
+            "close-up",
+            "extreme close-up",
+            "insert"
+          ],
+          "title": "Shot Size",
+          "type": "string"
+        },
+        "composition": {
+          "description": "Free text, e.g. 'rule-of-thirds, subject lower-left'.",
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Composition",
+          "type": "string"
+        }
+      },
+      "required": [
+        "shot_size",
+        "composition"
+      ],
+      "title": "Framing",
+      "type": "object"
+    },
+    "Grade": {
+      "additionalProperties": false,
+      "properties": {
+        "look": {
+          "description": "Free text, e.g. 'desaturated teal'.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Look",
+          "type": "string"
+        },
+        "contrast": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Contrast",
+          "type": "string"
+        }
+      },
+      "required": [
+        "look",
+        "contrast"
+      ],
+      "title": "Grade",
+      "type": "object"
+    },
+    "Lens": {
+      "additionalProperties": false,
+      "properties": {
+        "focal_length_mm": {
+          "description": "Real-world lens range: 8mm fisheye to 800mm super-telephoto.",
+          "maximum": 800,
+          "minimum": 8,
+          "title": "Focal Length Mm",
+          "type": "number"
+        },
+        "aperture_f": {
+          "description": "f-stop, realistic range across production lenses.",
+          "maximum": 32,
+          "minimum": 0.95,
+          "title": "Aperture F",
+          "type": "number"
+        }
+      },
+      "required": [
+        "focal_length_mm",
+        "aperture_f"
+      ],
+      "title": "Lens",
+      "type": "object"
+    },
+    "Lighting": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "enum": [
+            "high-key",
+            "low-key",
+            "flat",
+            "natural",
+            "chiaroscuro"
+          ],
+          "title": "Key",
+          "type": "string"
+        },
+        "mood": {
+          "description": "Free text, e.g. 'dramatic shadows'.",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Mood",
+          "type": "string"
+        },
+        "practicals": {
+          "description": "Visible in-scene light sources, e.g. ['drone lights', 'neon signage'].",
+          "items": {
+            "type": "string"
+          },
+          "title": "Practicals",
+          "type": "array"
+        }
+      },
+      "required": [
+        "key",
+        "mood"
+      ],
+      "title": "Lighting",
+      "type": "object"
+    },
+    "Subject": {
+      "additionalProperties": false,
+      "properties": {
+        "primary": {
+          "description": "e.g. 'woman in tattered coat'.",
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Primary",
+          "type": "string"
+        },
+        "blocking": {
+          "description": "e.g. 'walking left-to-right, foreground'.",
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Blocking",
+          "type": "string"
+        }
+      },
+      "required": [
+        "primary",
+        "blocking"
+      ],
+      "title": "Subject",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The full per-shot cinematographic IR (PRD \u00a76).",
+  "properties": {
+    "shot_id": {
+      "maxLength": 64,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "title": "Shot Id",
+      "type": "string"
+    },
+    "version": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "intent": {
+      "description": "Why this shot exists narratively, e.g. 'reveal the scale of the drone swarm'.",
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Intent",
+      "type": "string"
+    },
+    "camera": {
+      "$ref": "#/$defs/Camera"
+    },
+    "lens": {
+      "$ref": "#/$defs/Lens"
+    },
+    "framing": {
+      "$ref": "#/$defs/Framing"
+    },
+    "lighting": {
+      "$ref": "#/$defs/Lighting"
+    },
+    "grade": {
+      "$ref": "#/$defs/Grade"
+    },
+    "subject": {
+      "$ref": "#/$defs/Subject"
+    },
+    "world": {
+      "description": "Environment/background elements, e.g. ['destroyed buildings', 'dense fog'].",
+      "items": {
+        "type": "string"
+      },
+      "title": "World",
+      "type": "array"
+    },
+    "continuity_refs": {
+      "description": "References to prior LOCKED shots' frames in the same scene, e.g. ['s1_frame']. Resolved to full B2 keys at compile time \u2014 see CLAUDE.md continuity_refs note.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Continuity Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "shot_id",
+    "intent",
+    "camera",
+    "lens",
+    "framing",
+    "lighting",
+    "grade",
+    "subject"
+  ],
+  "title": "ShotSpec",
+  "type": "object"
+}

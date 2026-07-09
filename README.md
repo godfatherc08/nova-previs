@@ -85,6 +85,7 @@ Requires Python 3.11+ (matches Genblaze's minimum).
 python -m venv .venv
 source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+pip install -e .               # installs the nova/ package itself, editable
 
 cp .env.example .env           # then fill in keyID / applicationKey from
                                 # the Backblaze B2 console (App Keys)
@@ -119,3 +120,21 @@ sure `requirements.txt` is installed.
 
 GitHub Actions (`.github/workflows/ci.yml`) runs `ruff check` and
 `pytest` on every push/PR to `main`.
+
+## Shot Spec schema
+
+`nova/models/shot_spec.py` is the locked, single source of truth for the
+Shot Spec IR (PRD §6) — a Pydantic model with `extra="forbid"` and closed
+enums on the categorical fields (camera angle, shot size, lighting key,
+contrast), so the compiler can map cinematographic parameters to
+provider-specific prompts deterministically instead of fuzzy-matching
+free text. `schema/shot_spec.schema.json` is the generated standalone
+JSON Schema — regenerate it after any model change:
+
+```bash
+python scripts/export_shot_spec_schema.py
+```
+
+If you're handing frontend/design work to another tool: `schema/shot_spec.schema.json`
+is the field-by-field contract to give it alongside the design doc — it's
+plain JSON Schema, no Python required to read it.

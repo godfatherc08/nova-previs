@@ -1,0 +1,5 @@
+python-dotenv
+b2sdk
+pytest
+truststore
+ruff

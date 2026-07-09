@@ -137,7 +137,22 @@ nova-previs/                          (B2 bucket)
     previs/
       sequence.mp4                     assembled scene previs
       manifest.json                    full-chain provenance
+  scratch/{project_id}/{shot_id}/{take_id}.png
+                                       multi-take fan-out candidates not
+                                       promoted to a numbered version
+                                       (lifecycle-expired, see 8.3)
 ```
+
+**`scratch/` design note (added during backlog 0.10):** standard B2/S3
+lifecycle rules only match a literal prefix from the start of a key — no
+mid-path wildcards — so a rule can't target every project/shot's
+`.../takes/` path individually. `frames/v{n}.png` is deliberately kept
+forever for version scrub (8.4) and must never be swept. Multi-take
+fan-out candidates (9.5 use case 3 / backlog 8.6) that don't get promoted
+to a numbered version are the actual "rejected takes" the risk table and
+backlog 0.10 mean — they live under a single flat `scratch/` prefix
+outside `projects/` specifically so one bucket-level lifecycle rule can
+cover all of them.
 
 ### 8.3 Which B2 features Nova uses, and why
 
@@ -145,7 +160,7 @@ nova-previs/                          (B2 bucket)
 - **Versioning** — every refinement (v1 → v2 → v3…) of a spec and frame is retained. The user can scrub back through iterations, compare, and revert — a real filmmaking workflow (compare takes, justify a choice to a DP).
 - **Object Lock** — applied to locked frames and their provenance manifests, making them **tamper-evident**. A shot's cinematographic "chain of custody" cannot be silently altered after locking.
 - **Event Notifications** — when a locked frame object is created, B2 fires an event that triggers the animatic stage. No polling loop; the storage layer *is* the trigger.
-- **Lifecycle Rules** — rejected takes and intermediate artifacts are auto-expired so storage stays lean and costs stay predictable. **Hand-built, not a Genblaze passthrough:** Genblaze's `auto_lifecycle=True` only applies two fixed rules (abort incomplete multipart after 7 days, expire noncurrent versions after 30 days) — it has no API for a custom prefix-scoped rule like "expire `frames/reject/*` after 14 days." Nova must configure that rule directly against the B2 bucket (native console/API or raw S3 `PutBucketLifecycleConfiguration`), outside Genblaze.
+- **Lifecycle Rules** — rejected takes and intermediate artifacts under `scratch/` (see 8.2) are auto-expired so storage stays lean and costs stay predictable. **Hand-built, not a Genblaze passthrough:** Genblaze's `auto_lifecycle=True` only applies two fixed rules (abort incomplete multipart after 7 days, expire noncurrent versions after 30 days) — it has no API for a custom prefix-scoped rule. Nova configures a `scratch/` rule directly on the B2 bucket instead (currently: 3 days to hidden, 1 more to deleted — see `scripts/setup_b2_bucket.py`), outside Genblaze.
 
 ### 8.4 Advantages
 

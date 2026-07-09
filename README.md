@@ -96,9 +96,17 @@ Run the test suite:
 pytest -v
 ```
 
-B2-hitting tests (`tests/test_b2_connection.py`) skip automatically if
-`.env` isn't populated — expected in CI until `B2_KEY_ID` /
-`B2_APPLICATION_KEY` repo secrets are configured.
+B2-hitting tests (`tests/test_b2_connection.py`, `tests/test_b2_bucket_setup.py`)
+skip automatically if `.env` isn't populated — expected in CI until
+`B2_KEY_ID` / `B2_APPLICATION_KEY` repo secrets are configured.
+
+The `nova-previs` bucket (PRD §8.2 layout, Object Lock enabled, `scratch/`
+lifecycle rule) is provisioned by `scripts/setup_b2_bucket.py` — safe to
+re-run, it skips creation if the bucket already exists:
+
+```bash
+python scripts/setup_b2_bucket.py
+```
 
 **Windows note:** if you hit `SSLCertVerificationError` talking to B2,
 it's very likely AV software (Avast/AVG Web Shield, etc.) doing HTTPS

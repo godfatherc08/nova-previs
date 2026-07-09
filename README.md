@@ -4,7 +4,8 @@ AI-powered cinematic previsualization. Describe a scene in plain language;
 Nova breaks it into a shot list, generates a controllable storyboard frame
 per shot, compiles locked shots into animatic clips with scratch audio, and
 assembles a previs sequence. Full product spec: [`Nova_PRD.md`](Nova_PRD.md).
-Backlog: [`Nova_Backlog.csv`](Nova_Backlog.csv).
+Backlog: [`Nova_Backlog.csv`](Nova_Backlog.csv). Repo/file layout, incl.
+conventions for the not-yet-built frontend: [`Nova_File_Structure.md`](Nova_File_Structure.md).
 
 Built for the Backblaze Generative AI Media Hackathon (submission window:
 June 22 – Aug 3, 2026), orchestrated through [Genblaze](https://github.com/backblaze-labs/genblaze)

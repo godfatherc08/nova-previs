@@ -16,6 +16,9 @@ env/
 .mypy_cache/
 .cache/
 
+# Local dev DB (nova/models/project.py; DATABASE_URL unset)
+*.db
+
 # Frontend (future)
 node_modules/
 dist/

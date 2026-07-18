@@ -4,3 +4,14 @@ pytest
 truststore
 ruff
 pydantic
+fastapi
+uvicorn[standard]
+sqlalchemy
+genblaze-openai
+genblaze-s3
+# Backlog 3.2. Note: genblaze-google ships ImagenProvider, which cannot serve
+# nano-banana (Imagen API + no image inputs) — see nova/providers/gemini_image.py.
+# It's still pulled in for the Veo video stage (backlog 6.1/6.2), and google-genai
+# is the client Nova's own nano-banana adapter calls.
+genblaze-google
+google-genai

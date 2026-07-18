@@ -19,6 +19,13 @@ line-length = 100
 "tests/test_b2_connection.py" = ["E402"]
 "tests/test_b2_bucket_setup.py" = ["E402"]
 "scripts/setup_b2_bucket.py" = ["E402"]
+# Same reason (truststore before b2sdk); run_poller loads dotenv before the
+# nova imports so DATABASE_URL/creds are set at import time.
+"scripts/setup_event_notification.py" = ["E402"]
+"scripts/run_poller.py" = ["E402"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "live: hits a real provider/network API. Skipped automatically when the relevant credential is absent, so CI stays green without secrets.",
+]

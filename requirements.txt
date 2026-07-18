@@ -15,3 +15,14 @@ genblaze-s3
 # is the client Nova's own nano-banana adapter calls.
 genblaze-google
 google-genai
+# Animatic stage (backlog 6.1/6.2): Runway primary, Luma fallback, GMI draft
+# tier (also the Flux image fallback for 3.3).
+genblaze-runway
+genblaze-luma
+genblaze-gmicloud
+# Audio stage (backlog 6.3): ElevenLabs SFX fallback; Stability primary is a
+# Nova adapter calling the REST API directly via requests.
+genblaze-elevenlabs
+requests
+# Assembly (backlog 7.1): bundled ffmpeg fallback when none is on PATH.
+imageio-ffmpeg

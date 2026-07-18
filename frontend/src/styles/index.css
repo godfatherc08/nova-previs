@@ -1,0 +1,88 @@
+@import "./tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply bg-black text-light antialiased;
+    font-family: var(--font-body);
+  }
+
+  body {
+    @apply min-h-screen overflow-x-hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .font-mono,
+  code,
+  kbd,
+  pre {
+    font-family: var(--font-mono);
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-key;
+  }
+
+  ::selection {
+    @apply bg-light text-black;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .film-strip-edge {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 6px,
+      var(--graphite) 6px,
+      var(--graphite) 10px,
+      transparent 10px,
+      transparent 18px
+    );
+    background-size: 12px 18px;
+  }
+
+  .vignette {
+    box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.65);
+  }
+
+  .rack-blur {
+    filter: blur(2px);
+    opacity: 0.72;
+  }
+
+  .rack-focus {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

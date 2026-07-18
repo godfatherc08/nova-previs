@@ -1,0 +1,33 @@
+:root {
+  --black: #0a0a0a;
+  --film-base: #161616;
+  --graphite: #4a4a4a;
+  --silver: #8c8c8c;
+  --light: #f5f5f3;
+  --key: #ffffff;
+  --leader-amber: #e0a45c;
+
+  --radius: 0.25rem;
+
+  --font-display: "Anton", "Archivo Black", sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --letterbox-ratio: 1.375;
+  --letterbox-bar: 8vh;
+}
+
+[data-stage="academy"] {
+  --letterbox-ratio: 1.375;
+  --letterbox-bar: 8vh;
+}
+
+[data-stage="widescreen"] {
+  --letterbox-ratio: 1.85;
+  --letterbox-bar: 4vh;
+}
+
+[data-stage="scope"] {
+  --letterbox-ratio: 2.39;
+  --letterbox-bar: 0vh;
+}

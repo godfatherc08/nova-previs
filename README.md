@@ -4,12 +4,38 @@ AI-powered cinematic previsualization. Describe a scene in plain language;
 Nova breaks it into a shot list, generates a controllable storyboard frame
 per shot, compiles locked shots into animatic clips with scratch audio, and
 assembles a previs sequence. Full product spec: [`Nova_PRD.md`](Nova_PRD.md).
-Backlog: [`Nova_Backlog.csv`](Nova_Backlog.csv). Repo/file layout, incl.
-conventions for the not-yet-built frontend: [`Nova_File_Structure.md`](Nova_File_Structure.md).
+Backlog: [`Nova_Backlog.csv`](Nova_Backlog.csv). Repo/file layout:
+[`Nova_File_Structure.md`](Nova_File_Structure.md). Deeper docs (API
+contract, manifest schema, design, submission text) live in [`docs/`](docs/).
 
 Built for the Backblaze Generative AI Media Hackathon (submission window:
 June 22 – Aug 3, 2026), orchestrated through [Genblaze](https://github.com/backblaze-labs/genblaze)
 and persisted on Backblaze B2.
+
+## How it works (as built)
+
+```
+scene text
+  → scene_breakdown (LLM)        → editable shot list          [agent/]
+  → cinematographer (LLM)        → Shot Spec per shot (IR)      [agent/]
+  → compiler                     → provider-neutral prompt      [agent/compiler.py]
+  → image stage                  → storyboard frame + refine    [pipeline/image_stage.py]
+       primary nano-banana → fallback gpt-image-1 → Flux (GMI)
+  → LOCK: frame + sealed manifest to B2 under Object Lock       [api + storage/manifest.py]
+       ↳ fires B2 Event Notification → webhook (Nova glue)      [webhooks/lock_handler.py]
+         (polling fallback + direct-mode also advance the shot) [pipeline/advance.py]
+  → animatic stage  (Runway → Luma → GMI draft)                 [pipeline/animatic_stage.py]
+  → audio stage     (Stability → ElevenLabs SFX)                [pipeline/audio_stage.py]
+  → assembly (ffmpeg concat + per-shot mux)                     [pipeline/assembly.py]
+  → previs/sequence.mp4 + full-chain manifest to B2             [api/routes.py]
+```
+
+Every provider adapter plugs into a real Genblaze `Pipeline`; the
+cross-provider fallback chains, the lock→animatic webhook trigger, and the
+per-shot provenance manifest are Nova's own glue (see `CLAUDE.md` for the
+strict native-vs-hand-built accounting the judges care about). What each
+stage claims about Genblaze vs. B2 is verified against the installed SDK
+source, not assumed.
 
 ## Tech stack
 
@@ -92,11 +118,41 @@ cp .env.example .env           # then fill in keyID / applicationKey from
                                 # the Backblaze B2 console (App Keys)
 ```
 
-Run the test suite:
+Run the test suite (135+ tests; provider/B2-hitting tests skip without
+credentials, so this is green offline):
 
 ```bash
-pytest -v
+pytest -q
 ```
+
+### Running the app locally
+
+Build the frontend once (output lands in `frontend/dist/`, which the API
+serves), then run the combined app:
+
+```bash
+cd frontend && npm install && npm run build && cd ..
+uvicorn nova.api.app:app --reload --port 8000
+# open http://localhost:8000
+```
+
+Full generation needs provider keys in `.env` (see `.env.example`):
+`GEMINI_API_KEY` (nano-banana), `OPENAI_API_KEY` (agent LLM + gpt-image-1
+fallback), and optionally `RUNWAYML_API_SECRET` / `LUMAAI_API_KEY` /
+`STABILITY_API_KEY` / `ELEVENLABS_API_KEY` / `GMI_API_KEY` for the animatic,
+audio, and draft tiers. `ffmpeg` is needed for assembly — install it, or the
+bundled `imageio-ffmpeg` binary is used automatically.
+
+**Lock → animatic trigger has three modes** (`NOVA_EVENT_MODE`):
+
+- `direct` (default) — the lock endpoint background-tasks the animatic
+  stage itself. Zero B2 event setup; what a fresh clone runs on.
+- `webhook` — production. Configure the B2 Event Notification rule with
+  `python scripts/setup_event_notification.py` (needs a public
+  `NOVA_WEBHOOK_URL` and a 32-char `B2_WEBHOOK_SIGNING_SECRET`); B2 POSTs to
+  `/webhooks/b2/lock` on every lock.
+- polling fallback — `python scripts/run_poller.py` sweeps `LOCKED` shots
+  and advances any the event path missed. Runs alongside either mode.
 
 B2-hitting tests (`tests/test_b2_connection.py`, `tests/test_b2_bucket_setup.py`)
 skip automatically if `.env` isn't populated — expected in CI until
